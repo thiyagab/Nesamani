@@ -72,4 +72,15 @@
         android:text="Invite friends to pray"
         android:layout_gravity="center"
         />
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-4898754855127691/5127392037"/>
 </LinearLayout>

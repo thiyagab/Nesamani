@@ -18,6 +18,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -89,7 +92,12 @@ public class MainActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
+
+
+        MobileAds.initialize(this, "ca-app-pub-4898754855127691~3616544402");
+
         findViewById(R.id.image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -113,13 +121,20 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        fetchFromDB();
+        Toast.makeText(this,"Connecting to world...",Toast.LENGTH_SHORT).show();
+        fetchFromDB(0);
         setCounterValue(getLocal());
-
+        initAds();
     }
 
-    private void fetchFromDB() {
-        Toast.makeText(this,"Connecting to world...",Toast.LENGTH_SHORT).show();
+    void initAds(){
+       AdView mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+    }
+
+    private void fetchFromDB(final int newCount) {
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("praycount").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

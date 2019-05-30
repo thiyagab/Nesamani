@@ -19,7 +19,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-4898754855127691~3616544402"/>
         <activity
             android:name="com.droidapps.nesamani.SplashScreen"
             android:label="@string/app_name"
