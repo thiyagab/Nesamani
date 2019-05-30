@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "206746375305",
+    "firebase_url": "https://prayfornesamani-4bb97.firebaseio.com",
+    "project_id": "prayfornesamani-4bb97",
+    "storage_bucket": "prayfornesamani-4bb97.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:206746375305:android:d9b132c14176d95e",
+        "android_client_info": {
+          "package_name": "com.droidapps.nesamani"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "206746375305-3mt67evic87evisn5qi3tomq14largag.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.droidapps.nesamani",
+            "certificate_hash": "5b1c12671ca621b18590c87dcd087686f78034e7"
+          }
+        },
+        {
+          "client_id": "206746375305-p2e5qain7je8886pb51lfh48s4m1p952.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMys5C3xSun5UxFrgYKp18mgmk3fo4fEk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "206746375305-p2e5qain7je8886pb51lfh48s4m1p952.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
