@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "206746375305-iq2oktqsov3avlcbij4oabo9pg7qoa9k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.droidapps.nesamani",
+            "certificate_hash": "2fa8f03b6cd95957defb2072a01fc92921e36946"
+          }
+        },
+        {
           "client_id": "206746375305-3mt67evic87evisn5qi3tomq14largag.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

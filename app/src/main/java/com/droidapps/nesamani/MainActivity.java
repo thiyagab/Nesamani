@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +39,29 @@ public class MainActivity extends AppCompatActivity {
     TextView hits;
     ImageButton pray;
     ImageButton hammer;
+
+
+    int[] prayimages=new int[]{R.drawable.pray_1,R.drawable.pray_2,R.drawable.pray_3,R.drawable.pray_4,R.drawable.pray_5,R.drawable.pray_6,R.drawable.pray_7,R.drawable.pray_8,R.drawable.pray_9,R.drawable.pray_10};
+    int[] hitimages=new int[]{R.drawable.hit_1,R.drawable.hit_2,R.drawable.hit_3,R.drawable.hit_4,R.drawable.hit_5,R.drawable.hit_6,R.drawable.hit_7,R.drawable.hit_8,R.drawable.hit_9,R.drawable.hit_10};
+
+
+
+    int hitimagecount=0;
+    int prayimagecount=0;
+    private ImageView image;
+
+    public void setImage(boolean isHit){
+        int imageId=0;
+        if(isHit){
+            if(hitimagecount>=hitimages.length) hitimagecount=0;
+            imageId=hitimages[hitimagecount++];
+        }else{
+            if(prayimagecount>=prayimages.length) prayimagecount=0;
+            imageId=prayimages[prayimagecount++];
+        }
+        image.setImageResource(imageId);
+
+    }
 
     @Override
     protected void onPause() {
@@ -134,8 +158,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         MobileAds.initialize(this, "ca-app-pub-4898754855127691~3616544402");
+        image = findViewById(R.id.image);
 
-        findViewById(R.id.image).setOnClickListener(new View.OnClickListener() {
+        image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                incrementPrayers();
@@ -159,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 playBell();
                 incrementPrayers();
+                setImage(false);
             }
         });
         hammer.setOnClickListener(new View.OnClickListener() {
@@ -166,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 playHammer();
                 incrementHits();
+                setImage(true);
             }
         });
 
