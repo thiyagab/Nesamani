@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:scaleType="center"
+        android:id="@+id/image"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/nesamani" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/image"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:layout_gravity="center"
+        >
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        >
+
+        <TextView
+            android:id="@+id/counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginBottom="5dp"
+            android:gravity="right"
+            android:text="10000"
+            android:layout_alignParentRight="true"
+            android:textSize="32sp" />
+    <TextView
+        android:id="@+id/prayers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_below="@+id/counter"
+        android:text="prayers"
+
+        android:textSize="12sp" />
+
+    <ImageButton
+        android:id="@+id/pray"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:background="@drawable/pray"
+        android:layout_marginBottom="5dp"
+        android:layout_gravity="center"
+        android:layout_below="@+id/prayers"
+        android:layout_marginLeft="30dp"
+
+
+        />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/image"
+        android:layout_weight="1"
+        >
+
+    <TextView
+        android:id="@+id/hammercounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:gravity="right"
+        android:layout_marginBottom="5dp"
+        android:text="10000"
+        android:layout_weight="1"
+
+
+        android:textSize="32sp" />
+    <TextView
+        android:id="@+id/hits"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_below="@+id/hammercounter"
+
+        android:text="hits"
+
+        android:layout_weight="1"
+        android:textSize="12sp" />
+
+
+
+
+
+    <ImageButton
+        android:id="@+id/hammer"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:background="@drawable/hammer"
+        android:layout_marginBottom="5dp"
+        android:layout_gravity="center"
+        android:layout_below="@+id/hits"
+        android:layout_marginRight="30dp"
+
+        />
+    </RelativeLayout>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/instruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textSize="12sp"
+        android:layout_marginBottom="5dp"
+        android:text="Tap above many times to pray more for nesamani" />
+    <Button
+        android:id="@+id/share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Invite friends to pray"
+        android:layout_gravity="center"
+        android:layout_alignParentBottom="true"
+        />
+
+    <!--<com.google.android.gms.ads.AdView-->
+        <!--xmlns:ads="http://schemas.android.com/apk/res-auto"-->
+        <!--android:id="@+id/adView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:layout_alignParentBottom="true"-->
+
+        <!--ads:adSize="BANNER"-->
+        <!--ads:adUnitId="ca-app-pub-4898754855127691/5127392037"/>-->
+</RelativeLayout>
