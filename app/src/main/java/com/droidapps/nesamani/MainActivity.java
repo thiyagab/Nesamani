@@ -3,6 +3,9 @@ package com.droidapps.nesamani;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +22,7 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -43,16 +47,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void saveToCloud() {
-        int counterValue=Integer.parseInt(counter.getText().toString());
-        int hitsValue=Integer.parseInt(hits.getText().toString());
-        Map counterMap = new HashMap();
-        counterMap.put("count",counterValue);
-        counterMap.put("hits",hitsValue);
+        final int counterValue=Integer.parseInt(counter.getText().toString());
+        final int hitsValue=Integer.parseInt(hits.getText().toString());
         saveLocal(counterValue);
         saveLocalHits(hitsValue);
+        FirebaseFirestore.getInstance().collection("prayhitcount").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful() && task.getResult().size()>0) {
 
+                    DocumentSnapshot document = task.getResult().getDocuments().get(0);
+                        Log.d(TAG, document.getId() + " => " + document.getData());
+                        long newCounter= counterValue;
+                        long newHits=hitsValue;
+                        if(document.getLong("count")>counterValue || document.getLong("hits")>hitsValue){
+                            newCounter=document.getLong("count")+10;
+                            newHits=document.getLong("hits")+10;
+                        }
+                        final Map counterMap = new HashMap();
+                        counterMap.put("count",newCounter);
+                        counterMap.put("hits",newHits);
+                    FirebaseFirestore.getInstance().collection("prayhitcount").document("prayhitid").set(counterMap);
+                    }
+                 else {
+                    Log.w(TAG, "Error getting documents.", task.getException());
+                }
 
-        FirebaseFirestore.getInstance().collection("praycount").document("byUC5qAvb2YFJq5uyYO2").set(counterMap);
+            }
+        });
+
     }
 
     @Override
@@ -115,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.image).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                incrementPrayers();
+//                incrementPrayers();
             }
         });
         findViewById(R.id.share).setOnClickListener(new View.OnClickListener() {
@@ -134,12 +157,14 @@ public class MainActivity extends AppCompatActivity {
         pray.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                playBell();
                 incrementPrayers();
             }
         });
         hammer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                playHammer();
                 incrementHits();
             }
         });
@@ -147,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this,"Connecting to world...",Toast.LENGTH_SHORT).show();
         fetchFromDB();
         setCounterValue(getLocal());
+        initSound();
         initAds();
     }
 
@@ -160,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        db.collection("praycount").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        db.collection("prayhitcount").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
@@ -183,6 +209,9 @@ public class MainActivity extends AppCompatActivity {
     public void setCounterValue( int counterValue){
         counter.setText(""+counterValue);
     }
+    public void setHitsValue( int counterValue){
+        hits.setText(""+counterValue);
+    }
 
     public void incrementPrayers(){
        String text= counter.getText().toString();
@@ -197,19 +226,18 @@ public class MainActivity extends AppCompatActivity {
         int counterValue=Integer.parseInt(text);
         counterValue++;
         incrementMyLocalHits();
-        setCounterValue(counterValue);
+        setHitsValue(counterValue);
     }
 
 
 
 
     public void sendMessage()  {
-        saveToCloud();
 
         //You can read the image from external drove too
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, "Pray with me for Nesamani."+" "+getLocal()+" Prayers so far."+ "\nhttps://play.google.com/store/apps/details?id="+getPackageName());
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "Pray or Hit Nesamani."+" "+getLocal()+" prayers and "+ getLocalHits()+" hits so far. "+ "\nhttps://play.google.com/store/apps/details?id="+getPackageName());
         sendIntent.setType("text/plain");
         startActivity(sendIntent);
 
@@ -217,9 +245,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        saveToCloud();
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
-        adb.setMessage("You have done "+getMyLocal()+"  prayers so far.  \nSave Nesamani with more prayers, Invite your friends to pray");
-        adb.setTitle("Pray more");
+        adb.setMessage("You have done "+getMyLocal()+" prayers and "+ getMyHitsLocal()+" hits so far. Invite your friends to pray or hit");
+        adb.setTitle("Pray or Hit");
         adb.setPositiveButton("Invite", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                sendMessage();
@@ -232,5 +261,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         adb.show();
+    }
+
+    final int NUMBER_OF_SIMULTANEOUS_SOUNDS=1;
+    private final float LEFT_VOLUME_VALUE = 1.0f;
+    private final float RIGHT_VOLUME_VALUE = 1.0f;
+    private final int MUSIC_LOOP = 0;
+    private final int SOUND_PLAY_PRIORITY = 0;
+    private final float PLAY_RATE= 1.0f;
+
+    int hammerSoundId;
+    int templeSoundId;
+    SoundPool soundPool;
+
+    public void initSound(){
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            soundPool= new SoundPool.Builder()
+                    .setMaxStreams(NUMBER_OF_SIMULTANEOUS_SOUNDS)
+                    .build();
+        } else {
+            // Deprecated way of creating a SoundPool before Android API 21.
+            soundPool= new SoundPool(NUMBER_OF_SIMULTANEOUS_SOUNDS, AudioManager.STREAM_MUSIC, 0);
+        }
+        hammerSoundId = soundPool.load(getApplicationContext(), R.raw.hammer, 1);
+        templeSoundId = soundPool.load(getApplicationContext(), R.raw.templebell, 1);
+
+    }
+
+    public void playHammer(){
+        if(soundPool!=null && hammerSoundId!=0)
+             soundPool.play(hammerSoundId , LEFT_VOLUME_VALUE , RIGHT_VOLUME_VALUE, SOUND_PLAY_PRIORITY , MUSIC_LOOP ,PLAY_RATE);
+    }
+
+    public void playBell(){
+        if(soundPool!=null && templeSoundId!=0)
+            soundPool.play(templeSoundId , LEFT_VOLUME_VALUE , RIGHT_VOLUME_VALUE, SOUND_PLAY_PRIORITY , MUSIC_LOOP ,PLAY_RATE);
     }
 }

@@ -33,25 +33,18 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginRight="15dp"
+        android:layout_marginRight="20dp"
         >
-
         <TextView
             android:id="@+id/counter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-
-
             android:text="10000"
-
             android:textSize="32sp" />
     <TextView
         android:id="@+id/prayers"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
-
         android:text="prayers"
         android:layout_gravity="center_horizontal"
         android:textSize="12sp" />
@@ -75,7 +68,7 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_marginLeft="15dp"
+        android:layout_marginLeft="20dp"
         >
 
     <TextView
@@ -91,15 +84,9 @@
         android:id="@+id/hits"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
-
         android:layout_gravity="center_horizontal"
-
         android:text="hits"
-
         android:textSize="12sp" />
-
-
     <ImageButton
         android:id="@+id/hammer"
         android:layout_width="72dp"
@@ -117,28 +104,30 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textSize="12sp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="5dp"
         android:layout_centerHorizontal="true"
         android:layout_above="@id/share"
-        android:text="Tap above many times to pray more for nesamani" />
+        android:text="*Global Prayers/Hits count. You gonna pray or hit?" />
     <Button
         android:id="@+id/share"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Invite friends to pray"
+        android:text="Invite friends to pray or hit"
         android:layout_gravity="center"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
         />
 
-    <!--<com.google.android.gms.ads.AdView-->
-        <!--xmlns:ads="http://schemas.android.com/apk/res-auto"-->
-        <!--android:id="@+id/adView"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_alignParentBottom="true"-->
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
 
-        <!--ads:adSize="BANNER"-->
-        <!--ads:adUnitId="ca-app-pub-4898754855127691/5127392037"/>-->
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-4898754855127691/5127392037"/>
 </RelativeLayout>
