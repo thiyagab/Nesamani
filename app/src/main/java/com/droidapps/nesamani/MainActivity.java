@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,8 +42,10 @@ public class MainActivity extends AppCompatActivity {
     ImageButton hammer;
 
 
-    int[] prayimages=new int[]{R.drawable.pray_1,R.drawable.pray_2,R.drawable.pray_3,R.drawable.pray_4,R.drawable.pray_5,R.drawable.pray_6,R.drawable.pray_7,R.drawable.pray_8,R.drawable.pray_9,R.drawable.pray_10};
-    int[] hitimages=new int[]{R.drawable.hit_1,R.drawable.hit_2,R.drawable.hit_3,R.drawable.hit_4,R.drawable.hit_5,R.drawable.hit_6,R.drawable.hit_7,R.drawable.hit_8,R.drawable.hit_9,R.drawable.hit_10};
+    int[] prayimages=new int[]{R.drawable.pray_1,R.drawable.pray_2,R.drawable.pray_3,R.drawable.pray_4,R.drawable.pray_5,R.drawable.pray_6,R.drawable.pray_7,
+            R.drawable.pray_8,R.drawable.pray_9,R.drawable.pray_10,R.drawable.pray_11,R.drawable.pray_12,R.drawable.pray_13,R.drawable.pray_14,R.drawable.pray_15};
+    int[] hitimages=new int[]{R.drawable.hit_1,R.drawable.hit_2,R.drawable.hit_3,R.drawable.hit_4,R.drawable.hit_5,R.drawable.hit_6,R.drawable.hit_7,
+            R.drawable.hit_8,R.drawable.hit_9,R.drawable.hit_10,R.drawable.hit_11,R.drawable.hit_12,R.drawable.hit_13,R.drawable.hit_14,R.drawable.hit_15};
 
 
 
@@ -147,6 +150,44 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+
+    public void updateCount(){
+        FirebaseFirestore db=FirebaseFirestore.getInstance();
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+
+        adb.setTitle("Pray count");
+        // Set up the input
+        final EditText input = new EditText(this);
+        adb.setView(input);
+        adb.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                final Map counterMap = new HashMap();
+                counterMap.put("count",Integer.parseInt(input.getText().toString()));
+
+                FirebaseFirestore.getInstance().collection("praycount").document("byUC5qAvb2YFJq5uyYO2").set(counterMap);
+            }
+        });
+
+        adb.show();
+
+        db.collection("praycount").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Log.d(TAG, document.getId() + " => " + document.getData());
+                        input.setText(""+document.get("count"));
+
+                    }
+                } else {
+                    Log.w(TAG, "Error getting documents.", task.getException());
+                }
+
+            }
+        });
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -196,9 +237,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.instruction).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(BuildConfig.DEBUG)
+                    updateCount();
+            }
+        });
+
         Toast.makeText(this,"Connecting to world...",Toast.LENGTH_SHORT).show();
         fetchFromDB();
         setCounterValue(getLocal());
+        setHitsValue(getLocalHits());
         initSound();
         initAds();
     }
