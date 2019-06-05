@@ -16,6 +16,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,8 +39,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Document;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -82,7 +86,11 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    private void saveToCloud() {
+    private void saveToCloud(){
+        saveToCloud(false);
+    }
+
+    private void saveToCloud(final boolean updateview) {
         final int counterValue=Integer.parseInt(counter.getText().toString());
         final int hitsValue=Integer.parseInt(hits.getText().toString());
         saveLocal(counterValue);
@@ -103,6 +111,8 @@ public class MainActivity extends AppCompatActivity {
                         final Map counterMap = new HashMap();
                         counterMap.put("count",newCounter);
                         counterMap.put("hits",newHits);
+                        if(updateview)
+                            updateViews(counterMap);
                     FirebaseFirestore.getInstance().collection("prayhitcount").document("prayhitid").set(counterMap);
                     }
                  else {
@@ -254,6 +264,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.refresh).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refresh();
+            }
+        });
+
         Toast.makeText(this,"Connecting to world...",Toast.LENGTH_SHORT).show();
         fetchFromDB();
         setCounterValue(getLocal());
@@ -263,8 +280,13 @@ public class MainActivity extends AppCompatActivity {
         // Obtain the FirebaseAnalytics instance.
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
-        readFromRealTime();
-        writeToRealTime();
+//        readFromRealTime();
+//        writeToRealTime();
+        loadSounds();
+    }
+
+    private void refresh() {
+        saveToCloud();
     }
 
     void initAds(){
@@ -340,12 +362,15 @@ public class MainActivity extends AppCompatActivity {
         hits.setText(""+counterValue);
     }
 
+
+   int tempCount=0;
     public void incrementPrayers(){
        String text= counter.getText().toString();
        int counterValue=Integer.parseInt(text);
        counterValue++;
        incrementMyLocalPrayers();
        setCounterValue(counterValue);
+       checkAndPlayRandomSound();
     }
 
     public void incrementHits(){
@@ -354,9 +379,17 @@ public class MainActivity extends AppCompatActivity {
         counterValue++;
         incrementMyLocalHits();
         setHitsValue(counterValue);
+        checkAndPlayRandomSound();
     }
 
-
+    private void checkAndPlayRandomSound() {
+        tempCount++;
+        if(tempCount>=10){
+            tempCount=0;
+            playRandomSound();
+            showPlayDialog();
+        }
+    }
 
 
     public void sendMessage()  {
@@ -419,11 +452,76 @@ public class MainActivity extends AppCompatActivity {
 
     public void playHammer(){
         if(soundPool!=null && hammerSoundId!=0)
-             soundPool.play(hammerSoundId , LEFT_VOLUME_VALUE , RIGHT_VOLUME_VALUE, SOUND_PLAY_PRIORITY , MUSIC_LOOP ,PLAY_RATE);
+            playSound(hammerSoundId);
     }
 
     public void playBell(){
         if(soundPool!=null && templeSoundId!=0)
-            soundPool.play(templeSoundId , LEFT_VOLUME_VALUE , RIGHT_VOLUME_VALUE, SOUND_PLAY_PRIORITY , MUSIC_LOOP ,PLAY_RATE);
+           playSound(templeSoundId);
+    }
+
+
+    int currentStreamingId;
+    public void playSound(int soundId){
+        currentStreamingId=soundPool.play(soundId , LEFT_VOLUME_VALUE , RIGHT_VOLUME_VALUE, SOUND_PLAY_PRIORITY , MUSIC_LOOP ,PLAY_RATE);
+    }
+
+    public void stopSound(){
+        if(soundPool!=null){
+            soundPool.stop(currentStreamingId);
+        }
+    }
+
+
+
+
+    public void showPlayDialog(){
+
+        AlertDialog.Builder adb = new AlertDialog.Builder(this);
+
+        adb.setCancelable(true);
+        adb.setView(R.layout.sounddialog);
+        adb.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                stopSound();
+            }
+        });
+        adb.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                stopSound();
+            }
+        });
+        adb.show();
+    }
+
+    private static final String SOUND_FOLDER="sounds";
+    private ArrayList<Integer> soundsList = new ArrayList();
+
+    public void playRandomSound(){
+        int index= new Random().nextInt(soundsList.size());
+        playSound(soundsList.get(index));
+    }
+
+    public void loadSounds() {
+        String[] soundFiles;
+        try {
+            soundFiles = getAssets().list(SOUND_FOLDER);
+            Log.d(TAG, "Fetched " + soundFiles.length + " sound files");
+        } catch (IOException e) {
+            Log.e(TAG, "Error accessing sound folder", e);
+            return;
+        }
+
+        for (String fileName : soundFiles) {
+            try {
+                String path = SOUND_FOLDER + "/" + fileName;
+               soundsList.add(soundPool.load(getAssets().openFd(path),1));
+
+            } catch (IOException e) {
+                Log.e(TAG, "Could not load sound: " + fileName, e);
+            }
+        }
     }
 }
