@@ -24,11 +24,19 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+
+import org.w3c.dom.Document;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     TextView hits;
     ImageButton pray;
     ImageButton hammer;
+    private FirebaseAnalytics mFirebaseAnalytics;
 
 
     int[] prayimages=new int[]{R.drawable.pray_1,R.drawable.pray_2,R.drawable.pray_3,R.drawable.pray_4,R.drawable.pray_5,R.drawable.pray_6,R.drawable.pray_7,
@@ -251,6 +260,11 @@ public class MainActivity extends AppCompatActivity {
         setHitsValue(getLocalHits());
         initSound();
         initAds();
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
+        readFromRealTime();
+        writeToRealTime();
     }
 
     void initAds(){
@@ -269,8 +283,8 @@ public class MainActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Log.d(TAG, document.getId() + " => " + document.getData());
-                        counter.setText(""+document.get("count"));
-                        hits.setText(""+document.get("hits"));
+                        //This is always only one data in db
+                       updateViews(document.getData());
                     }
                 } else {
                     Log.w(TAG, "Error getting documents.", task.getException());
@@ -280,6 +294,42 @@ public class MainActivity extends AppCompatActivity {
         });
 
 //
+
+    }
+
+    public void updateViews(Map document){
+        counter.setText(""+document.get("count"));
+        hits.setText(""+document.get("hits"));
+    }
+
+    public void writeToRealTime(){
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("prayhits");
+        final Map counterMap = new HashMap();
+        counterMap.put("count",10000);
+        counterMap.put("hits",10000);
+        myRef.updateChildren(counterMap);
+    }
+
+    public void readFromRealTime(){
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("prayhits");
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                dataSnapshot
+                System.out.println("Value: "+dataSnapshot.getValue());
+                if(dataSnapshot.getValue() instanceof Map)
+                    updateViews((Map)dataSnapshot.getValue());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                System.out.println("Error: "+databaseError);
+            }
+        });
 
     }
 
