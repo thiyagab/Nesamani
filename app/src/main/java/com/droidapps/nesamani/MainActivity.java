@@ -3,7 +3,9 @@ package com.droidapps.nesamani;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -286,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refresh() {
-        saveToCloud();
+        saveToCloud(true);
     }
 
     void initAds(){
@@ -433,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
     int hammerSoundId;
     int templeSoundId;
     SoundPool soundPool;
-
+    MediaPlayer mediaPlayer;
     public void initSound(){
 
 
@@ -447,6 +449,13 @@ public class MainActivity extends AppCompatActivity {
         }
         hammerSoundId = soundPool.load(getApplicationContext(), R.raw.hammer, 1);
         templeSoundId = soundPool.load(getApplicationContext(), R.raw.templebell, 1);
+        soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                playSound(currentStreamingId);
+            }
+        });
+        mediaPlayer = new MediaPlayer();
 
     }
 
@@ -463,12 +472,12 @@ public class MainActivity extends AppCompatActivity {
 
     int currentStreamingId;
     public void playSound(int soundId){
-        currentStreamingId=soundPool.play(soundId , LEFT_VOLUME_VALUE , RIGHT_VOLUME_VALUE, SOUND_PLAY_PRIORITY , MUSIC_LOOP ,PLAY_RATE);
+        soundPool.play(soundId , LEFT_VOLUME_VALUE , RIGHT_VOLUME_VALUE, SOUND_PLAY_PRIORITY , MUSIC_LOOP ,PLAY_RATE);
     }
 
     public void stopSound(){
-        if(soundPool!=null){
-            soundPool.stop(currentStreamingId);
+        if(mediaPlayer!=null){
+            mediaPlayer.stop();
         }
     }
 
@@ -479,8 +488,15 @@ public class MainActivity extends AppCompatActivity {
 
         AlertDialog.Builder adb = new AlertDialog.Builder(this);
 
-        adb.setCancelable(true);
+        adb.setCancelable(false);
+
         adb.setView(R.layout.sounddialog);
+        adb.setNegativeButton("close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                stopSound();
+            }
+        });
         adb.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
@@ -497,11 +513,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static final String SOUND_FOLDER="sounds";
-    private ArrayList<Integer> soundsList = new ArrayList();
+    private ArrayList<String> soundsList = new ArrayList();
 
     public void playRandomSound(){
         int index= new Random().nextInt(soundsList.size());
-        playSound(soundsList.get(index));
+        playMediaSound(soundsList.get(index));
+    }
+
+    void playMediaSound(String path){
+        try {
+            mediaPlayer.reset();
+            AssetFileDescriptor afd = getAssets().openFd(path);
+            mediaPlayer.setDataSource(afd.getFileDescriptor(),afd.getStartOffset(),afd.getLength());
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+//            soundPool.stop(currentStreamingId);
+//            soundPool.unload(currentStreamingId);
+//            currentStreamingId=soundPool.load(getAssets().openFd(path),1);
+//            playSound(currentStreamingId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void loadSounds() {
@@ -515,13 +547,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         for (String fileName : soundFiles) {
-            try {
-                String path = SOUND_FOLDER + "/" + fileName;
-               soundsList.add(soundPool.load(getAssets().openFd(path),1));
-
-            } catch (IOException e) {
-                Log.e(TAG, "Could not load sound: " + fileName, e);
-            }
+            String path = SOUND_FOLDER + "/" + fileName;
+            soundsList.add(path);
         }
     }
 }
